@@ -1,53 +1,82 @@
 #include "Dictionary.h"
+#include <iostream>
+#include <fstream>
+#include <streambuf>
+#include <regex>
 
-map<const char, asciiArtLetter> Dictionary::readCharToAsciiArtDictionary()
+
+Dictionary::Dictionary(void)
 {
 	ifstream infile("alphabet.txt");
 
 	string infile_str((istreambuf_iterator<char>(infile)), istreambuf_iterator<char>());
 
-	map<const char, asciiArtLetter> dictionary;
-
-	//Use Regex to find all matches. assign found groups to letters' lines
 	regex e("([a-zA-Z0-9])\n(.*)\n(.*)\n(.*)\n(.*)\n(.*)\n");
-
-	//cout << infile_str << endl;
 
 	sregex_iterator iter(infile_str.begin(), infile_str.end(), e);
 	sregex_iterator end;
 
 	while (iter != end)
 	{
-		string letter;
-		asciiArtLetter asciiLetter;
+		asciiLetter = {};
 
-		//cout << "size: " << iter->size() << endl;
+		strncpy(letter, (*iter)[1].str().c_str(), 1);
 
-		//cout << "expression match #" << 0 << ": " << (*iter)[0] << endl;
 		for (unsigned i = 2; i < iter->size(); ++i)
 		{
-			//cout << "capture submatch #" << i << ": " << (*iter)[i] << endl;
 			asciiLetter.lines.push_back((*iter)[i].str());
 		}
 
-		letter = (*iter)[1].str();
+		setLetterWidth(asciiLetter);
+		resizeLetterLines(asciiLetter);
 
-		//find longest line
-		size_t width = 0;
-		for (auto& line : asciiLetter.lines)
-		{
-			if (width < line.size())
-			{
-				width = line.size();
-			}
-		}
-
-		asciiLetter.letterWidth = width;
-		//dictionary.emplace(letter.c_str(), asciiLetter);
-		dictionary[*letter.c_str()] = asciiLetter;
+		dictionary.emplace(*letter, asciiLetter);
 
 		++iter;
 	}
+}
 
-	return dictionary;
+void Dictionary::setLetterWidth(asciiArtLetter& asciiLetter)
+{
+	size_t width = 0;
+	for (auto& line : asciiLetter.lines)
+	{
+		// Remove trailing spaces -> line = regex_replace(line, regex(" +$"), "");
+		if (width < line.size())
+		{
+			width = line.size();
+		}
+	}
+	asciiLetter.letterWidth = width;
+}
+
+void Dictionary::resizeLetterLines(asciiArtLetter& asciiLetter)
+{
+	for (auto& line : asciiLetter.lines)
+	{
+		line.resize(asciiLetter.letterWidth, ' ');
+	}
+}
+
+void Dictionary::printAsciiArt(string& textToPrint)
+{
+	for (int i = 0; i < 5; i++)
+	{
+		for (auto& letter : textToPrint)
+		{
+			if (regex_match(string(1, letter), regex("[a-zA-Z0-9]")))
+			{
+				cout << dictionary[letter].lines[i];
+			}
+			else if (letter == ' ')
+			{
+				cout << " ";
+			}
+			else
+			{
+				cout << "error - wrong character" ;
+			}
+		}
+		cout << endl;
+	}
 }

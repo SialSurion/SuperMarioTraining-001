@@ -1,11 +1,7 @@
 #pragma once
-#include <iostream>
-#include <fstream>
-#include <streambuf>
 #include <string>
-#include <map>
 #include <vector>
-#include <regex>
+#include <map>
 
 using namespace std;
 
@@ -18,5 +14,14 @@ struct asciiArtLetter
 class Dictionary
 {
 public:
-	map<const char, asciiArtLetter> readCharToAsciiArtDictionary();
+	Dictionary(void);
+	void printAsciiArt(string& textToTransform);
+
+private:
+	char* letter = new char();
+	asciiArtLetter asciiLetter;
+	map<char, asciiArtLetter> dictionary;
+
+	void setLetterWidth(asciiArtLetter& asciiLetter);
+	void resizeLetterLines(asciiArtLetter& asciiLetter);
 };
