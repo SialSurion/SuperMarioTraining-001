@@ -24,4 +24,7 @@ private:
 
 	void setLetterWidth(asciiArtLetter& asciiLetter);
 	void resizeLetterLines(asciiArtLetter& asciiLetter);
+	void insertSpaceToDictionary();
+	bool testTextVsConsoleWidth(string& textToPrint);
+	void SetConsoleWindow(int Width, int Height);
 };
